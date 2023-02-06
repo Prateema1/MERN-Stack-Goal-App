@@ -7,6 +7,7 @@ const connectDB = async () => {     //All mongoose methods are asynchronous and 
        console.log(`MongoDB connected: ${conn.connection.host}`.cyan.underline);
     } catch (error) {
         console.log(error);
+        console.log("Mongo Not Connected")
         process.exit(1)
     }
 }
