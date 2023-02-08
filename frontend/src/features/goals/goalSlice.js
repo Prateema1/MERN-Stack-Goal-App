@@ -38,6 +38,21 @@ export const getGoals = createAsyncThunk('goals/getAll', async(_, thunkAPI) => {
     }
 })
 
+//delete goal
+export const deleteGoal = createAsyncThunk('goals/delete', async (id, thunkAPI) => {    //goals/delete is the name of our action
+    try {
+        //thunkAPI object has a getState method we can use to get anything from anypart of the state
+        //Here, we are getting token from auth State's user object using getState method
+        const token = thunkAPI.getState().auth.user.token
+       return await goalService.deleteGoal(id, token)
+    } catch (error) {
+        const message = (error.response && error.response.data && error.response.data.message)
+          || error.message || 
+          error.toString()
+         return thunkAPI.rejectWithValue(message) 
+    }
+})
+
 export const goalSlice = createSlice({
     name: 'goal',
     initialState,
@@ -68,6 +83,19 @@ export const goalSlice = createSlice({
             state.goals = action.payload
         })
         .addCase(getGoals.rejected, (state, action) => {
+            state.isLoading = false
+            state.isError = true
+            state.message = action.payload
+        })
+        .addCase(deleteGoal.pending, (state) => {
+            state.isLoading = true
+        })
+        .addCase(deleteGoal.fulfilled, (state, action) => {
+            state.isLoading = false
+            state.isSuccess = true
+            state.goals = state.goals.filter((goal) => goal._id !== action.payload.id)
+        })
+        .addCase(deleteGoal.rejected, (state, action) => {
             state.isLoading = false
             state.isError = true
             state.message = action.payload
